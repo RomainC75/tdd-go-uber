@@ -1,21 +1,27 @@
 export interface ITrip {
-  calculatePriceByDistance(distance: number): number;
-  calculateBasePrice(direction: string): number;
+  getTotalFee(): Promise<number>;
 }
 
 export class FakeTrip {
   distance: number;
   direction: string;
-  constructor(distance: number, direction: string) {
+  subscription: string;
+  totalPrice: number;
+  constructor(distance: number, direction: string, subscription: string) {
     this.distance = distance;
     this.direction = direction;
+    this.subscription = subscription;
   }
-  async calculatePriceByDistance(distance: number): Promise<number> {
-    return Promise.resolve(distance * 0.5);
+  async calculatePriceByDistance(): Promise<number> {
+    if (this.subscription == 'PREMIUM') {
+      const price = this.distance <= 5 ? 0 : (this.distance - 5) * 0.5;
+      return Promise.resolve(price);
+    }
+    return Promise.resolve(this.distance * 0.5);
   }
 
-  async calculateBasePrice(direction: string): Promise<number> {
-    switch (direction) {
+  async calculateBasePrice(): Promise<number> {
+    switch (this.direction) {
       case 'INTRA_MUROS':
         return Promise.resolve(30);
       case 'EXTRA_MUROS':
@@ -27,9 +33,10 @@ export class FakeTrip {
     }
   }
 
-  async getTotalFee() {
-    const basePrice = await this.calculateBasePrice(this.direction);
-    const price = await this.calculatePriceByDistance(this.distance);
-    return basePrice + price;
+  async getTotalFee(): Promise<number> {
+    const basePrice = await this.calculateBasePrice();
+    const price = await this.calculatePriceByDistance();
+    this.totalPrice = basePrice + price;
+    return this.totalPrice;
   }
 }
