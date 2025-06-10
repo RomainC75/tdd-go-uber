@@ -1,8 +1,6 @@
-import { ITrip } from './trip';
+import { IRide } from './gateways/ride.interface';
+import { ITrip } from './gateways/trip.interface';
 
-export interface IRide {
-  book(): Promise<IRide>;
-}
 export class FakeRide implements IRide {
   trip: ITrip;
   price: number;

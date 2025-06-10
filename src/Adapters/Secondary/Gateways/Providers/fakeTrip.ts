@@ -1,7 +1,3 @@
-export interface ITrip {
-  getTotalFee(): Promise<number>;
-}
-
 export class FakeTrip {
   distance: number;
   direction: string;

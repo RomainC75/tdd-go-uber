@@ -1,7 +1,7 @@
-import { BookUseCase } from './businessLogic';
-import { FakeRide } from './ride';
-import { IRideRepo, RideRepo } from './rideRepo';
-import { FakeTrip } from './trip';
+import { FakeRide } from '../ride';
+import { IRideRepo, RideRepo } from '../rideRepo';
+import { FakeTrip } from '../../Adapters/Secondary/Gateways/Providers/fakeTrip';
+import { BookUseCase } from './bookUserCase';
 
 describe('book Uber use case', () => {
   let rideRepo: IRideRepo;

@@ -1,4 +1,4 @@
-import { IRide } from './ride';
+import { IRide } from './gateways/ride.interface';
 
 export interface IRideRepo {
   save(ride: IRide): Promise<void>;
