@@ -1,14 +1,14 @@
 import { FakeRide } from '../ride';
-import { IRideRepo, RideRepo } from '../rideRepo';
 import { FakeTrip } from '../../Adapters/Secondary/Gateways/Providers/fakeTrip';
 import { BookUseCase } from './bookUserCase';
-import { isUint16Array } from 'util/types';
+import { IRideRepo } from '../gateways/ride.repo.interface';
+import { FakeRideRepo } from '../../Adapters/Secondary/Gateways/Repositories/rideRepo';
 
 describe('book Uber use case', () => {
   let rideRepo: IRideRepo;
 
   beforeEach(() => {
-    rideRepo = new RideRepo();
+    rideRepo = new FakeRideRepo();
   });
   it.each`
     distance | direction        | subscription | expectedPrice
@@ -48,7 +48,7 @@ describe('book Uber use case', () => {
 describe('uberX use case', () => {
   let rideRepo: IRideRepo;
   beforeEach(() => {
-    rideRepo = new RideRepo();
+    rideRepo = new FakeRideRepo();
   });
   it('should not be able to book a UberX', async () => {
     const distance = 5;
@@ -68,8 +68,8 @@ describe('uberX use case', () => {
 
   it.each`
     distance | direction        | subscription | expectedPrice
-    ${10}     | ${`EXTRA_MUROS`} | ${`BASIC`} | ${20 + 5 + 10}
-    ${10}     | ${`EXTRA_MUROS`} | ${`PREMIUM`} | ${20 + 2.5 + 10}
+    ${10}    | ${`EXTRA_MUROS`} | ${`BASIC`}   | ${20 + 5 + 10}
+    ${10}    | ${`EXTRA_MUROS`} | ${`PREMIUM`} | ${20 + 2.5 + 10}
   `(
     'should be able to book a UberX',
     async ({

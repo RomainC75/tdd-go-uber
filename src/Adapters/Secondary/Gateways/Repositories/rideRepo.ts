@@ -1,11 +1,7 @@
-import { IRide } from './gateways/ride.interface';
+import { IRideRepo } from 'src/businessLogic/gateways/ride.repo.interface';
+import { IRide } from '../../../../businessLogic/gateways/ride.interface';
 
-export interface IRideRepo {
-  save(ride: IRide): Promise<void>;
-  getRides(): Promise<IRide[]>;
-}
-
-export class RideRepo {
+export class FakeRideRepo implements IRideRepo {
   rides: IRide[] = [];
   constructor() {}
 
