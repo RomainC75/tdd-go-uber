@@ -9,12 +9,14 @@ export class BookUseCase {
     distance,
     direction,
     subscription,
+    isUberX = false,
   }: {
     distance: number;
     direction: string;
     subscription: string;
+    isUberX: boolean;
   }): Promise<void> {
-    const trip = new FakeTrip(distance, direction, subscription);
+    const trip = new FakeTrip(distance, direction, subscription, isUberX);
     const ride = new FakeRide(trip);
     const bookedRide = await ride.book();
     this.rideRepo.save(bookedRide);
