@@ -1,3 +1,3 @@
-export interface IRider {
+export interface IRiderRepo {
   isRiderAnniversary(): Promise<boolean>;
 }
