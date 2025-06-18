@@ -12,7 +12,18 @@ export class FakeTrip implements ITrip {
     return Promise.resolve(this.distance * 0.5);
   }
 
-  async getBasePrice(): Promise<number> {
+  async setDirection(startAddr: string, endAddr: string): Promise<void> {
+    if (startAddr.includes('PARIS')) {
+      this.direction = endAddr.includes('PARIS') ? 'PARIS' : 'PARIS_EXTRA';
+    } else {
+      this.direction = endAddr.includes('PARIS') ? 'EXTRA_PARIS' : 'EXTRA';
+    }
+    return Promise.resolve();
+  }
+
+  async getBasePrice(startAddr: string, endAddr: string): Promise<number> {
+    await this.setDirection(startAddr, endAddr);
+    console.log('---> ', this.direction);
     switch (this.direction) {
       case 'PARIS_EXTRA':
         return Promise.resolve(20);
@@ -27,8 +38,10 @@ export class FakeTrip implements ITrip {
     }
   }
 
-  async getTotalPrice(): Promise<number> {
-    const totalPrice = (await this.getBasePrice()) + (await this.getDistance());
+  async getTotalPrice(startAddr: string, endAddr: string): Promise<number> {
+    const totalPrice =
+      (await this.getBasePrice(startAddr, endAddr)) +
+      (await this.getDistance());
     this.totalPrice = totalPrice;
     return totalPrice;
   }
@@ -36,10 +49,9 @@ export class FakeTrip implements ITrip {
 
 describe('book Uber', () => {
   it.each`
-    distance | expectedPrice | startAddr | endAddr | direction        | forfait
-    ${5}     | ${22.5}       | ${'a'}    | ${'b'}  | ${'PARIS_EXTRA'} | ${'BASIC'}
-    ${5}     | ${12.5}       | ${'a'}    | ${'b'}  | ${'EXTRA_PARIS'} | ${'BASIC'}
-    
+    distance | expectedPrice | startAddr     | endAddr       | forfait
+    ${5}     | ${22.5}       | ${'PARIS_1'}  | ${'ASNIERES'} | ${'BASIC'}
+    ${5}     | ${12.5}       | ${'ASNIERES'} | ${'PARIS_2'}  | ${'BASIC'}
   `(
     'should book a uber',
     async ({

@@ -11,6 +11,6 @@ export class BookUberUseCase {
     startAddr: string;
     endAddr: string;
   }) {
-    await this._trip.getTotalPrice();
+    await this._trip.getTotalPrice(startAddr, endAddr);
   }
 }

@@ -1,6 +1,6 @@
 export interface ITrip {
   getDistance(): Promise<number>;
-  getTotalPrice(): Promise<number>;
+  getTotalPrice(startAddr: string, endAddr: string);
 }
 
 export enum EForfait {
