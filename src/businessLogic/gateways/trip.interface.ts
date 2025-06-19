@@ -1,6 +1,11 @@
+import { ESubscription } from '../models/user';
+
 export interface ITrip {
-  getDistance(): Promise<number>;
-  getTotalPrice(startAddr: string, endAddr: string);
+  getTotalPrice(
+    startAddr: string,
+    endAddr: string,
+    subscription: ESubscription,
+  );
 }
 
 export enum EForfait {
