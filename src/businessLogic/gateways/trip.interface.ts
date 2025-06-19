@@ -5,7 +5,7 @@ export interface ITrip {
     startAddr: string,
     endAddr: string,
     subscription: ESubscription,
-  );
+  ): Promise<number>;
 }
 
 export enum EForfait {

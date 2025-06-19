@@ -1,6 +1,8 @@
 import { ESubscription } from '../../../businessLogic/models/user';
 import { ITrip } from 'src/businessLogic/gateways/trip.interface';
 
+const PRICE_PER_KM = 0.5;
+
 export class FakeTrip implements ITrip {
   distance: number;
   direction: string;
@@ -10,9 +12,10 @@ export class FakeTrip implements ITrip {
 
   getPayedDistance(subscription: ESubscription): Promise<number> {
     if (subscription == ESubscription.PREMIUM) {
-      return Promise.resolve(this.distance >= 5 ? this.distance - 5 : 0);
+      const distance = this.distance >= 5 ? this.distance - 5 : 0;
+      return Promise.resolve(distance * PRICE_PER_KM);
     }
-    return Promise.resolve(this.distance * 0.5);
+    return Promise.resolve(this.distance * PRICE_PER_KM);
   }
 
   async setDirection(startAddr: string, endAddr: string): Promise<void> {
@@ -26,7 +29,6 @@ export class FakeTrip implements ITrip {
 
   async getBasePrice(startAddr: string, endAddr: string): Promise<number> {
     await this.setDirection(startAddr, endAddr);
-    console.log('---> ', this.direction);
     switch (this.direction) {
       case 'PARIS_EXTRA':
         return Promise.resolve(20);
