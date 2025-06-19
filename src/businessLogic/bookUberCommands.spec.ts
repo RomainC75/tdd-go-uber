@@ -1,3 +1,4 @@
+import { FakeUserRepo } from '../adapters/secondary/repositories/fakeUser.repo';
 import { FakeTrip } from '../adapters/secondary/providers/fakeTrip';
 import { BookUberUseCase } from './bookUberCommands';
 import { ESubscription, User } from './models/user';
@@ -33,14 +34,17 @@ describe('book Uber', () => {
       direction: string;
       subscription: ESubscription;
     }) => {
+      const userId: string = '1';
       const trip = new FakeTrip();
       trip.distance = distance;
       trip.direction = direction;
 
-      const user = new User(1, subscription);
+      const user = new User(userId, subscription);
+      const userRepo = new FakeUserRepo();
+      userRepo.user = user;
 
-      const bookUber = new BookUberUseCase(trip, user);
-      await bookUber.execute({ startAddr, endAddr });
+      const bookUber = new BookUberUseCase(trip, userRepo);
+      await bookUber.execute({ userId, startAddr, endAddr });
 
       expect(trip.totalPrice).toEqual(expectedPrice);
     },

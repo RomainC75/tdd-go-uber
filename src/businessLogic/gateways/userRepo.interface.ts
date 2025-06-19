@@ -1,5 +1,5 @@
-import { User } from "../models/user";
+import { User } from '../models/user';
 
 export interface IUserRepo {
-    getUserById(id: sring): Promise<User>
+  getUserById(id: string): Promise<User>;
 }
