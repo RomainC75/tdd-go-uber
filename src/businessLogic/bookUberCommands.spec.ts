@@ -19,7 +19,6 @@ describe('book Uber', () => {
       expectedPrice,
       startAddr,
       endAddr,
-      direction,
       subscription,
     }: {
       distance: number;
@@ -30,19 +29,13 @@ describe('book Uber', () => {
       subscription: ESubscription;
     }) => {
       const userId: string = '1';
-
-      const trip = new FakeTrip();
-      trip.distance = distance;
-      trip.direction = direction;
-
-      const rideRepo = new FakeRideRepo();
-
-      const user = new User(userId, subscription);
-      const userRepo = new FakeUserRepo();
-      userRepo.user = user;
-
-      const bookUber = new BookUberUseCase(trip, rideRepo, userRepo);
-      await bookUber.execute({ userId, startAddr, endAddr });
+      const rideRepo = await caseBuilder({
+        userId,
+        distance,
+        startAddr,
+        endAddr,
+        subscription,
+      });
 
       const expectedRide = new Ride(
         '1',
@@ -55,3 +48,30 @@ describe('book Uber', () => {
     },
   );
 });
+
+const caseBuilder = async ({
+  userId,
+  distance,
+  startAddr,
+  endAddr,
+  subscription,
+}: {
+  userId: string;
+  distance: number;
+  startAddr: string;
+  endAddr: string;
+  subscription: ESubscription;
+}): Promise<FakeRideRepo> => {
+  const trip = new FakeTrip();
+  trip.distance = distance;
+
+  const rideRepo = new FakeRideRepo();
+
+  const user = new User(userId, subscription);
+  const userRepo = new FakeUserRepo();
+  userRepo.user = user;
+
+  const bookUber = new BookUberUseCase(trip, rideRepo, userRepo);
+  await bookUber.execute({ userId, startAddr, endAddr });
+  return rideRepo;
+};
