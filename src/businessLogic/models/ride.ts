@@ -5,5 +5,7 @@ export class Ride {
     public startAddr: string,
     public endAddr: string,
     public totalPrice: number,
+    public createdAt: Date,
+    public updatedAt: Date,
   ) {}
 }
