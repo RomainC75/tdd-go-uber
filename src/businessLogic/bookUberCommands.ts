@@ -13,10 +13,12 @@ export class BookUberUseCase {
     userId,
     startAddr,
     endAddr,
+    isUberX,
   }: {
     userId: string;
     startAddr: string;
     endAddr: string;
+    isUberX: boolean;
   }) {
     const foundUser = await this._userRepo.getUserById(userId);
     if (!foundUser) {
@@ -26,6 +28,8 @@ export class BookUberUseCase {
       startAddr,
       endAddr,
       foundUser.subscription,
+      foundUser.birthday,
+      isUberX,
     );
     await this._rideRepo.save(userId, totalPrice, startAddr, endAddr);
   }

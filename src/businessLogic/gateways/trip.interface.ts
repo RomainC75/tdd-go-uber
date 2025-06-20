@@ -5,6 +5,8 @@ export interface ITrip {
     startAddr: string,
     endAddr: string,
     subscription: ESubscription,
+    birthday: Date,
+    isUberX: boolean,
   ): Promise<number>;
 }
 

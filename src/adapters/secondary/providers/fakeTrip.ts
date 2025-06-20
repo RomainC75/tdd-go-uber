@@ -1,3 +1,4 @@
+import { IDeterministicTimeProvider } from 'src/businessLogic/gateways/deterministicTime';
 import { ESubscription } from '../../../businessLogic/models/user';
 import { ITrip } from 'src/businessLogic/gateways/trip.interface';
 
@@ -8,7 +9,9 @@ export class FakeTrip implements ITrip {
   direction: string;
   totalPrice: number;
 
-  constructor() {}
+  constructor(
+    private readonly _deterministicDateHandler: IDeterministicTimeProvider,
+  ) {}
 
   getPayedDistance(subscription: ESubscription): Promise<number> {
     if (subscription == ESubscription.PREMIUM) {
@@ -43,14 +46,32 @@ export class FakeTrip implements ITrip {
     }
   }
 
+  getUberXBasicPrice(isUberX: boolean, birthday: Date): number {
+    if (!isUberX) {
+      return 0;
+    } else if (this.distance < 3) {
+      throw new Error('UberX distance is to short');
+    } else if (
+      birthday.getMonth() === this._deterministicDateHandler.now().getMonth() &&
+      birthday.getDay() === this._deterministicDateHandler.now().getDay()
+    ) {
+      return 0;
+    }
+    return 10;
+  }
+
   async getTotalPrice(
     startAddr: string,
     endAddr: string,
     subscription: ESubscription,
+    birthday: Date,
+    isUberX: boolean,
   ): Promise<number> {
+    const payedDistance = await this.getPayedDistance(subscription);
+    const uberXFee = this.getUberXBasicPrice(isUberX, birthday);
+
     const totalPrice =
-      (await this.getBasePrice(startAddr, endAddr)) +
-      (await this.getPayedDistance(subscription));
+      (await this.getBasePrice(startAddr, endAddr)) + payedDistance + uberXFee;
     this.totalPrice = totalPrice;
     return totalPrice;
   }
