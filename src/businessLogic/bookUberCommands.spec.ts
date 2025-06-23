@@ -1,5 +1,8 @@
 import { FakeUserRepo } from '../adapters/secondary/repositories/fakeUser.repo';
-import { FakeTrip } from '../adapters/secondary/providers/fakeTrip';
+import {
+  FakeTrip,
+  REDUCTIION_FOR_NEW_CLIENTS,
+} from '../adapters/secondary/providers/fakeTrip';
 import { BookUberUseCase } from './bookUberCommands';
 import { ESubscription, User } from './models/user';
 import { FakeRideRepo } from '../adapters/secondary/repositories/fakeRide.repo';
@@ -9,10 +12,28 @@ import { FakeDeterministicTimeProvider } from '../adapters/secondary/providers/f
 describe('Uber', () => {
   let userId: string;
   let birthday: Date;
+  let firstConnectionDate: Date;
+  let now: Date;
+
+  let distance: number;
+  let expectedPrice: number;
+  let startAddr: string;
+  let endAddr: string;
+  let subscription: ESubscription;
+
   beforeEach(() => {
     userId = '1';
-    birthday = new Date('2025-01-01');
+    birthday = new Date('2001-01-01');
+    now = new Date('2025-01-02');
+    firstConnectionDate = new Date('2023-01-02');
+
+    distance = 5;
+    expectedPrice = 22.5;
+    startAddr = 'PARIS_1';
+    endAddr = 'ASNIERES';
+    subscription = ESubscription.BASIC;
   });
+
   it.each`
     distance | expectedPrice | startAddr     | endAddr       | subscription | now
     ${5}     | ${22.5}       | ${'PARIS_1'}  | ${'ASNIERES'} | ${'BASIC'}   | ${new Date('2025-01-01')}
@@ -46,6 +67,7 @@ describe('Uber', () => {
         subscription,
         now,
         isUberX: false,
+        firstConnectionDate,
       });
 
       const expectedRide = new Ride(
@@ -91,6 +113,7 @@ describe('Uber', () => {
         subscription,
         now,
         isUberX: true,
+        firstConnectionDate,
       });
 
       const expectedRide = new Ride(
@@ -105,12 +128,40 @@ describe('Uber', () => {
       expect(expectedRide).toEqual(rideRepo.rides[0]);
     },
   );
+
+  it('should have a bargain for a new client (-1y)', async () => {
+    firstConnectionDate = new Date('2024-07-01');
+
+    const rideRepo = await caseBuilder({
+      userId,
+      birthday,
+      distance,
+      startAddr,
+      endAddr,
+      subscription,
+      now,
+      isUberX: false,
+      firstConnectionDate,
+    });
+
+    const expectedRide = new Ride(
+      '1',
+      userId,
+      startAddr,
+      endAddr,
+      expectedPrice * REDUCTIION_FOR_NEW_CLIENTS,
+      now,
+      now,
+    );
+
+    expect(expectedRide).toEqual(rideRepo.rides[0]);
+  });
+
   it('should make uberX free because birthday', async () => {
     const startAddr = 'PARIS_1';
     const endAddr = 'ASNIERES';
     const expectedPrice = 22.5;
-    const birthday = new Date('2025-01-01');
-    const now = birthday;
+    birthday = new Date('2001-01-02');
 
     const rideRepo = await caseBuilder({
       userId,
@@ -121,6 +172,7 @@ describe('Uber', () => {
       subscription: ESubscription.BASIC,
       now,
       isUberX: true,
+      firstConnectionDate,
     });
 
     const expectedRide = new Ride(
@@ -134,6 +186,7 @@ describe('Uber', () => {
     );
     expect(expectedRide).toEqual(rideRepo.rides[0]);
   });
+
   it('should throw an error', async () => {
     await expect(
       caseBuilder({
@@ -143,12 +196,15 @@ describe('Uber', () => {
         startAddr: 'PARIS_1',
         endAddr: 'ASNIERES',
         subscription: ESubscription.BASIC,
-        now: new Date('2025-01-01'),
+        now,
         isUberX: true,
+        firstConnectionDate,
       }),
     ).rejects.toThrow('UberX distance is to short');
   });
 });
+
+// ===================================================
 
 const caseBuilder = async ({
   userId,
@@ -159,6 +215,7 @@ const caseBuilder = async ({
   now,
   isUberX = false,
   birthday,
+  firstConnectionDate,
 }: {
   userId: string;
   birthday: Date;
@@ -168,6 +225,7 @@ const caseBuilder = async ({
   subscription: ESubscription;
   now: Date;
   isUberX: boolean;
+  firstConnectionDate: Date;
 }): Promise<FakeRideRepo> => {
   const deterministicTime = new FakeDeterministicTimeProvider();
   deterministicTime.nowDate = now;
@@ -177,7 +235,7 @@ const caseBuilder = async ({
 
   const rideRepo = new FakeRideRepo(deterministicTime);
 
-  const user = new User(userId, subscription, birthday);
+  const user = new User(userId, subscription, birthday, firstConnectionDate);
   const userRepo = new FakeUserRepo();
   userRepo.user = user;
 

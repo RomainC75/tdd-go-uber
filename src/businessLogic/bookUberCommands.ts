@@ -30,6 +30,7 @@ export class BookUberUseCase {
       foundUser.subscription,
       foundUser.birthday,
       isUberX,
+      foundUser.firstConnectionDate,
     );
     await this._rideRepo.save(userId, totalPrice, startAddr, endAddr);
   }

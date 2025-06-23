@@ -3,6 +3,7 @@ import { ESubscription } from '../../../businessLogic/models/user';
 import { ITrip } from 'src/businessLogic/gateways/trip.interface';
 
 const PRICE_PER_KM = 0.5;
+export const REDUCTIION_FOR_NEW_CLIENTS = 0.9;
 
 export class FakeTrip implements ITrip {
   distance: number;
@@ -46,6 +47,15 @@ export class FakeTrip implements ITrip {
     }
   }
 
+  isLessThanAYearClient(firstConnectionDate: Date): boolean {
+    const oneYearInMs = 365 * 24 * 60 * 60 * 1000;
+    return (
+      this._deterministicDateHandler.now().getTime() -
+        firstConnectionDate.getTime() <
+      oneYearInMs
+    );
+  }
+
   getUberXBasicPrice(isUberX: boolean, birthday: Date): number {
     if (!isUberX) {
       return 0;
@@ -53,7 +63,7 @@ export class FakeTrip implements ITrip {
       throw new Error('UberX distance is to short');
     } else if (
       birthday.getMonth() === this._deterministicDateHandler.now().getMonth() &&
-      birthday.getDay() === this._deterministicDateHandler.now().getDay()
+      birthday.getDate() === this._deterministicDateHandler.now().getDate()
     ) {
       return 0;
     }
@@ -66,13 +76,18 @@ export class FakeTrip implements ITrip {
     subscription: ESubscription,
     birthday: Date,
     isUberX: boolean,
+    firstConnectionDate: Date,
   ): Promise<number> {
     const payedDistance = await this.getPayedDistance(subscription);
     const uberXFee = this.getUberXBasicPrice(isUberX, birthday);
 
-    const totalPrice =
+    let totalPrice =
       (await this.getBasePrice(startAddr, endAddr)) + payedDistance + uberXFee;
-    this.totalPrice = totalPrice;
+    totalPrice =
+      totalPrice *
+      (this.isLessThanAYearClient(firstConnectionDate)
+        ? REDUCTIION_FOR_NEW_CLIENTS
+        : 1);
     return totalPrice;
   }
 }

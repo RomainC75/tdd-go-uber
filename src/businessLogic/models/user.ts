@@ -7,5 +7,6 @@ export class User {
     public id: string,
     public subscription: ESubscription,
     public birthday: Date,
+    public firstConnectionDate: Date,
   ) {}
 }

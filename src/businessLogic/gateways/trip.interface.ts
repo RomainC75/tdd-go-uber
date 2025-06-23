@@ -7,6 +7,7 @@ export interface ITrip {
     subscription: ESubscription,
     birthday: Date,
     isUberX: boolean,
+    firstConnectionDate: Date,
   ): Promise<number>;
 }
 
