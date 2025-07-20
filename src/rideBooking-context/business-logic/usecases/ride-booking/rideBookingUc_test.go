@@ -17,16 +17,18 @@ func (suite *RideTestSuite) TestRide() {
 	testCases := []struct {
 		startAddr         string
 		endAddr           string
+		distance          float32
 		expectedBasePrice float32
 	}{
-		{"PARIS", "PARIS", 30},
-		{"OUT", "PARIS", 10},
-		{"PARIS", "OUT", 20},
-		{"OUT", "OUT", 50},
+		{"PARIS", "PARIS", 3, 31.5},
+		{"OUT", "PARIS", 3, 11.5},
+		{"PARIS", "OUT", 3, 21.5},
+		{"OUT", "OUT", 3, 51.5},
 	}
 	suite.T().Run("should calculate price", func(t *testing.T) {
 		for _, testCase := range testCases {
 			fakeTripProvider := providers.NewFakeProvider()
+			fakeTripProvider.Distance = testCase.distance
 			rideBookingUc := NewRideBookingUc(fakeTripProvider)
 
 			// basePrice := getBasePrice(testCase.startAddr, testCase.endAddr)

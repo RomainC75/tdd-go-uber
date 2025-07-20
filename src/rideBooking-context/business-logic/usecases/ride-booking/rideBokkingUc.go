@@ -18,5 +18,7 @@ func NewRideBookingUc(tripProvider gateways.ITrip) *RideBookingUc {
 }
 
 func (rbuc *RideBookingUc) Book(args TBook) float32 {
-	return rbuc.trip.GetBasePrice(args.startAddr, args.endAddr)
+	basicPrice := rbuc.trip.GetBasePrice(args.startAddr, args.endAddr)
+	distancePrice := rbuc.trip.GetDistancePrice(args.startAddr, args.endAddr)
+	return basicPrice + distancePrice
 }
