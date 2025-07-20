@@ -9,13 +9,15 @@ type Trip struct {
 	endAddr    string
 	distance   float32
 	totalPrice float32
+	forfait    Forfait
 }
 
-func NewTrip(startAddr string, endAddr string, distance float32) Trip {
+func NewTrip(startAddr string, endAddr string, distance float32, forfait Forfait) Trip {
 	trip := Trip{
 		startAddr: startAddr,
 		endAddr:   endAddr,
 		distance:  distance,
+		forfait:   forfait,
 	}
 	trip.setTotalCost()
 	return trip
@@ -36,7 +38,17 @@ func (fp *Trip) getBasePrice() float32 {
 
 func (fp *Trip) setTotalCost() {
 	basePrice := fp.getBasePrice()
-	fp.totalPrice = basePrice + fp.distance*PRICE_PER_KILOMETER
+	fp.totalPrice = basePrice + fp.getBasePrice()
+}
+
+func (fp *Trip) getDistancePrice() float32 {
+	if fp.forfait == ForfaitPremium {
+		if fp.distance < 5 {
+			return 0
+		}
+		return (fp.distance - 5) * PRICE_PER_KILOMETER
+	}
+	return fp.distance * PRICE_PER_KILOMETER
 }
 
 func (fp *Trip) GetTotalPrice() float32 {
