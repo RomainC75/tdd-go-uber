@@ -27,13 +27,12 @@ func (suite *RideTestSuite) TestRide() {
 	}
 	suite.T().Run("should calculate price", func(t *testing.T) {
 		for _, testCase := range testCases {
-			fakeTripProvider := providers.NewFakeProvider()
+			fakeTripProvider := providers.NewFakeTripScannerProvider()
 			fakeTripProvider.Distance = testCase.distance
 			rideBookingUc := NewRideBookingUc(fakeTripProvider)
 
-			// basePrice := getBasePrice(testCase.startAddr, testCase.endAddr)
-			basePrice := rideBookingUc.Book(TBook{testCase.startAddr, testCase.endAddr})
-			assert.Equal(t, testCase.expectedBasePrice, basePrice)
+			trip := rideBookingUc.Book(TBook{testCase.startAddr, testCase.endAddr})
+			assert.Equal(t, testCase.expectedBasePrice, trip.GetTotalPrice())
 
 		}
 	})

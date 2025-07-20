@@ -1,6 +1,9 @@
 package ridebooking
 
-import "tdd-go-uber/src/rideBooking-context/business-logic/gateways"
+import (
+	"tdd-go-uber/src/rideBooking-context/business-logic/gateways"
+	"tdd-go-uber/src/rideBooking-context/business-logic/models"
+)
 
 type TBook struct {
 	startAddr string
@@ -8,17 +11,16 @@ type TBook struct {
 }
 
 type RideBookingUc struct {
-	trip gateways.ITrip
+	tripScanner gateways.ITripScanner
 }
 
-func NewRideBookingUc(tripProvider gateways.ITrip) *RideBookingUc {
+func NewRideBookingUc(tripProvider gateways.ITripScanner) *RideBookingUc {
 	return &RideBookingUc{
-		trip: tripProvider,
+		tripScanner: tripProvider,
 	}
 }
 
-func (rbuc *RideBookingUc) Book(args TBook) float32 {
-	basicPrice := rbuc.trip.GetBasePrice(args.startAddr, args.endAddr)
-	distancePrice := rbuc.trip.GetDistancePrice(args.startAddr, args.endAddr)
-	return basicPrice + distancePrice
+func (rbuc *RideBookingUc) Book(args TBook) models.Trip {
+	distance := rbuc.tripScanner.GetTotalDistance(args.startAddr, args.endAddr)
+	return models.NewTrip(args.startAddr, args.endAddr, distance)
 }
