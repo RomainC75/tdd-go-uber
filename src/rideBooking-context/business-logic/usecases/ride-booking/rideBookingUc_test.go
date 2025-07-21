@@ -7,6 +7,7 @@ import (
 	"tdd-go-uber/src/rideBooking-context/adapters/secondary/providers"
 	"tdd-go-uber/src/rideBooking-context/adapters/secondary/repositories"
 	"tdd-go-uber/src/rideBooking-context/business-logic/models"
+	valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -24,15 +25,15 @@ func (suite *RideTestSuite) TestRide() {
 		endAddr           TAdressInput
 		distance          float32
 		expectedBasePrice float32
-		Forfait           models.Forfait
+		Forfait           valueobjects.Forfait
 		isUberX           bool
 	}{
-		{TAdressInput{11, "boulevard poissonière", 75002, "Paris"}, TAdressInput{11, "boulevard poissonière", 75002, "paris"}, 3, 31.5, models.ForfaitBasic, false},
-		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{11, "boulevard poissonière", 75002, "paris"}, 3, 11.5, models.ForfaitBasic, false},
-		{TAdressInput{11, "boulevard poissonière", 75002, "paris"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 21.5, models.ForfaitBasic, false},
-		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 51.5, models.ForfaitBasic, false},
-		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 6, 50.5, models.ForfaitPremium, false},
-		{TAdressInput{11, "boulevard poissonière", 75002, "paris"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 20, models.ForfaitPremium, false},
+		{TAdressInput{11, "boulevard poissonière", 75002, "Paris"}, TAdressInput{11, "boulevard poissonière", 75002, "paris"}, 3, 31.5, valueobjects.ForfaitBasic, false},
+		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{11, "boulevard poissonière", 75002, "paris"}, 3, 11.5, valueobjects.ForfaitBasic, false},
+		{TAdressInput{11, "boulevard poissonière", 75002, "paris"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 21.5, valueobjects.ForfaitBasic, false},
+		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 51.5, valueobjects.ForfaitBasic, false},
+		{TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 6, 50.5, valueobjects.ForfaitPremium, false},
+		{TAdressInput{11, "boulevard poissonière", 75002, "paris"}, TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}, 3, 20, valueobjects.ForfaitPremium, false},
 	}
 	suite.T().Run("should calculate price", func(t *testing.T) {
 		for _, testCase := range testCases {
@@ -44,9 +45,9 @@ func (suite *RideTestSuite) TestRide() {
 
 			rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
 
-			trip, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), testCase.startAddr, testCase.endAddr, false})
+			ride, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), testCase.startAddr, testCase.endAddr, false})
 			assert.Nil(t, err)
-			assert.Equal(t, testCase.expectedBasePrice, trip.GetTotalPrice())
+			assert.Equal(t, testCase.expectedBasePrice, ride.GetTotalPrice())
 
 		}
 	})
@@ -75,13 +76,13 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", models.ForfaitPremium)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", valueobjects.ForfaitPremium)
 
 		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
 
-		trip, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), startAddr, endAddr, true})
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), startAddr, endAddr, true})
 		assert.Nil(t, err)
-		assert.Equal(t, expectedPrice, trip.GetTotalPrice())
+		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
 }
 

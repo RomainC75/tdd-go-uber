@@ -38,14 +38,16 @@ func NewRideBookingUc(userRepo gateways.UserRepo, tripProvider gateways.ITripSca
 	}
 }
 
-func (rbuc *RideBookingUc) Book(args TBook) (models.Trip, error) {
+func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 	foundUser, err := rbuc.userRepo.GetUser(args.userId)
 	if err != nil {
-		return models.Trip{}, err
+		return models.Ride{}, err
 	}
 	startAddr := valueobjects.NewAddressVA(args.startAddr.number, args.startAddr.street, args.startAddr.code, args.startAddr.city)
 	endAddr := valueobjects.NewAddressVA(args.endAddr.number, args.endAddr.street, args.endAddr.code, args.endAddr.city)
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
-	return models.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX), nil
+	trip := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX)
+	ride := models.BookNewRide(foundUser, trip)
+	return ride, nil
 }

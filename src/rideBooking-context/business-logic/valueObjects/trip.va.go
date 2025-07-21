@@ -1,21 +1,18 @@
-package models
-
-import (
-	valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
-)
+package valueobjects
 
 var PRICE_PER_KILOMETER float32 = 0.5
 
+// value Object
 type Trip struct {
-	startAddr  valueobjects.Adress
-	endAddr    valueobjects.Adress
+	startAddr  Adress
+	endAddr    Adress
 	distance   float32
 	totalPrice float32
 	forfait    Forfait
 	isUberX    bool
 }
 
-func NewTrip(startAddr valueobjects.Adress, endAddr valueobjects.Adress, distance float32, forfait Forfait, isUberX bool) Trip {
+func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool) Trip {
 	trip := Trip{
 		startAddr: startAddr,
 		endAddr:   endAddr,

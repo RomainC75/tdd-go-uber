@@ -1,21 +1,18 @@
 package models
 
-import "github.com/google/uuid"
+import (
+	valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
 
-type Forfait string
-
-const (
-	ForfaitBasic   Forfait = "BASIC"
-	ForfaitPremium         = "PREMIUM"
+	"github.com/google/uuid"
 )
 
 type User struct {
 	id      uuid.UUID
 	name    string
-	forfait Forfait
+	forfait valueobjects.Forfait
 }
 
-func NewUser(id uuid.UUID, name string, forfait Forfait) *User {
+func NewUser(id uuid.UUID, name string, forfait valueobjects.Forfait) *User {
 	return &User{
 		id:      id,
 		name:    name,
@@ -23,6 +20,6 @@ func NewUser(id uuid.UUID, name string, forfait Forfait) *User {
 	}
 }
 
-func (u *User) GetForfait() Forfait {
+func (u *User) GetForfait() valueobjects.Forfait {
 	return u.forfait
 }
