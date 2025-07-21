@@ -1,7 +1,11 @@
 package gateways
 
-import "tdd-go-uber/src/rideBooking-context/business-logic/models"
+import (
+	"tdd-go-uber/src/rideBooking-context/business-logic/models"
+
+	"github.com/google/uuid"
+)
 
 type UserRepo interface {
-	GetUser(email string) models.User
+	GetUser(id uuid.UUID) (models.User, error)
 }

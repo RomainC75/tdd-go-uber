@@ -1,5 +1,7 @@
 package gateways
 
+import valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
+
 type ITripScanner interface {
-	GetTotalDistance(start string, end string) float32
+	GetTotalDistance(startAddr valueobjects.Adress, endAddr valueobjects.Adress) float32
 }

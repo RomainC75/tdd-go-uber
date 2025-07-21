@@ -1,18 +1,20 @@
 package models
 
-import "strings"
+import (
+	valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
+)
 
 var PRICE_PER_KILOMETER float32 = 0.5
 
 type Trip struct {
-	startAddr  string
-	endAddr    string
+	startAddr  valueobjects.Adress
+	endAddr    valueobjects.Adress
 	distance   float32
 	totalPrice float32
 	forfait    Forfait
 }
 
-func NewTrip(startAddr string, endAddr string, distance float32, forfait Forfait) Trip {
+func NewTrip(startAddr valueobjects.Adress, endAddr valueobjects.Adress, distance float32, forfait Forfait) Trip {
 	trip := Trip{
 		startAddr: startAddr,
 		endAddr:   endAddr,
@@ -24,13 +26,13 @@ func NewTrip(startAddr string, endAddr string, distance float32, forfait Forfait
 }
 
 func (fp *Trip) getBasePrice() float32 {
-	if strings.Contains(fp.startAddr, "PARIS") {
-		if strings.Contains(fp.endAddr, "PARIS") {
+	if fp.startAddr.IsInParis() {
+		if fp.endAddr.IsInParis() {
 			return 30
 		}
 		return 20
 	}
-	if strings.Contains(fp.endAddr, "PARIS") {
+	if fp.endAddr.IsInParis() {
 		return 10
 	}
 	return 50
@@ -38,7 +40,7 @@ func (fp *Trip) getBasePrice() float32 {
 
 func (fp *Trip) setTotalCost() {
 	basePrice := fp.getBasePrice()
-	fp.totalPrice = basePrice + fp.getBasePrice()
+	fp.totalPrice = basePrice + fp.getDistancePrice()
 }
 
 func (fp *Trip) getDistancePrice() float32 {

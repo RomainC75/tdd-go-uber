@@ -1,5 +1,7 @@
 package models
 
+import "github.com/google/uuid"
+
 type Forfait string
 
 const (
@@ -8,13 +10,19 @@ const (
 )
 
 type User struct {
+	id      uuid.UUID
 	name    string
 	forfait Forfait
 }
 
-func NewUser(name string, forfait Forfait) *User {
+func NewUser(id uuid.UUID, name string, forfait Forfait) *User {
 	return &User{
+		id:      id,
 		name:    name,
 		forfait: forfait,
 	}
+}
+
+func (u *User) GetForfait() Forfait {
+	return u.forfait
 }
