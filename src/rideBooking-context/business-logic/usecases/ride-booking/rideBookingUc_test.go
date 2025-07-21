@@ -1,6 +1,7 @@
 package ridebooking
 
 import (
+	"fmt"
 	"testing"
 
 	"tdd-go-uber/src/rideBooking-context/adapters/secondary/providers"
@@ -47,6 +48,20 @@ func (suite *RideTestSuite) TestRide() {
 			assert.Equal(t, testCase.expectedBasePrice, trip.GetTotalPrice())
 
 		}
+	})
+
+	suite.T().Run("should return an error if the user is not found", func(t *testing.T) {
+		fakeTripProvider := providers.NewFakeTripScannerProvider()
+		fakeTripProvider.Distance = 10
+
+		fakeUserRepo := repositories.NewFakeUserRepo()
+		fakeUserRepo.ShouldReturnAnError = true
+
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), TAdressInput{}, TAdressInput{}})
+		assert.NotNil(t, err)
+		assert.EqualError(t, err, fmt.Sprintf("user %s not found", UUID))
 	})
 }
 
