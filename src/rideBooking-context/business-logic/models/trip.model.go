@@ -12,30 +12,36 @@ type Trip struct {
 	distance   float32
 	totalPrice float32
 	forfait    Forfait
+	isUberX    bool
 }
 
-func NewTrip(startAddr valueobjects.Adress, endAddr valueobjects.Adress, distance float32, forfait Forfait) Trip {
+func NewTrip(startAddr valueobjects.Adress, endAddr valueobjects.Adress, distance float32, forfait Forfait, isUberX bool) Trip {
 	trip := Trip{
 		startAddr: startAddr,
 		endAddr:   endAddr,
 		distance:  distance,
 		forfait:   forfait,
+		isUberX:   isUberX,
 	}
 	trip.setTotalCost()
 	return trip
 }
 
 func (fp *Trip) getBasePrice() float32 {
+	var basePrice float32 = 0
+	if fp.isUberX {
+		basePrice = 10
+	}
 	if fp.startAddr.IsInParis() {
 		if fp.endAddr.IsInParis() {
-			return 30
+			return basePrice + 30
 		}
-		return 20
+		return basePrice + 20
 	}
 	if fp.endAddr.IsInParis() {
-		return 10
+		return basePrice + 10
 	}
-	return 50
+	return basePrice + 50
 }
 
 func (fp *Trip) setTotalCost() {

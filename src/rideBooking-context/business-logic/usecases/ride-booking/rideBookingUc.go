@@ -19,6 +19,11 @@ type TBook struct {
 	userId    uuid.UUID
 	startAddr TAdressInput
 	endAddr   TAdressInput
+	isUberX   bool
+}
+
+type BookOptions struct {
+	isUberX bool
 }
 
 type RideBookingUc struct {
@@ -42,5 +47,5 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Trip, error) {
 	endAddr := valueobjects.NewAddressVA(args.endAddr.number, args.endAddr.street, args.endAddr.code, args.endAddr.city)
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
-	return models.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait()), nil
+	return models.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX), nil
 }
