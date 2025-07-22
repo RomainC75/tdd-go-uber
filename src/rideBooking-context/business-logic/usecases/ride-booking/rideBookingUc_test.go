@@ -84,6 +84,24 @@ func (suite *RideTestSuite) TestRide() {
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
+
+	suite.T().Run("should return an error is distance is less than 3 km for an UberX ride", func(t *testing.T) {
+		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
+		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
+		var distance float32 = 2.0
+
+		fakeTripProvider := providers.NewFakeTripScannerProvider()
+		fakeTripProvider.Distance = distance
+
+		fakeUserRepo := repositories.NewFakeUserRepo()
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", valueobjects.ForfaitPremium)
+
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), startAddr, endAddr, true})
+
+		assert.EqualError(t, err, "distance cannot be < 3 when uberX")
+	})
 }
 
 func TestExampleTestSuite(t *testing.T) {

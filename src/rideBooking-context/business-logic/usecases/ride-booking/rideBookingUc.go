@@ -47,7 +47,10 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 	endAddr := valueobjects.NewAddressVA(args.endAddr.number, args.endAddr.street, args.endAddr.code, args.endAddr.city)
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
-	trip := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX)
+	trip, err := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX)
+	if err != nil {
+		return models.Ride{}, err
+	}
 	ride := models.BookNewRide(foundUser, trip, args.isUberX)
 	return ride, nil
 }

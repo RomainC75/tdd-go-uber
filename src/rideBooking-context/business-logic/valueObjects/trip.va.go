@@ -1,5 +1,7 @@
 package valueobjects
 
+import "errors"
+
 var PRICE_PER_KILOMETER float32 = 0.5
 
 // value Object
@@ -10,14 +12,17 @@ type Trip struct {
 	totalPrice float32
 }
 
-func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool) Trip {
+func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool) (Trip, error) {
+	if forfait == ForfaitPremium && distance < 3 {
+		return Trip{}, errors.New("distance cannot be < 3 when uberX")
+	}
 	trip := Trip{
 		startAddr: startAddr,
 		endAddr:   endAddr,
 		distance:  distance,
 	}
 	trip.setTotalCost(forfait, isUberX)
-	return trip
+	return trip, nil
 }
 
 func (fp *Trip) getBasePrice(isUberX bool) float32 {
