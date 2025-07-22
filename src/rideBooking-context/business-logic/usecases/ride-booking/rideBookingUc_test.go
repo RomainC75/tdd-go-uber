@@ -19,7 +19,8 @@ type RideTestSuite struct {
 }
 
 func (suite *RideTestSuite) TestRide() {
-	UUID := "0510c938-138b-4860-b5a7-c1bcb71719df"
+	userUUID := "0510c938-138b-4860-b5a7-c1bcb71719df"
+	rideUUID := "d57f6854-c4ea-45d6-bbee-5d395002a279"
 	testCases := []struct {
 		startAddr         TAdressInput
 		endAddr           TAdressInput
@@ -37,15 +38,17 @@ func (suite *RideTestSuite) TestRide() {
 	}
 	suite.T().Run("should calculate price", func(t *testing.T) {
 		for _, testCase := range testCases {
+			fakeUuidGenerator := providers.NewFakeUuidGenerator(uuid.MustParse(rideUUID))
+
 			fakeTripProvider := providers.NewFakeTripScannerProvider()
 			fakeTripProvider.Distance = testCase.distance
 
 			fakeUserRepo := repositories.NewFakeUserRepo()
-			fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", testCase.Forfait)
+			fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", testCase.Forfait)
 
-			rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+			rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator)
 
-			ride, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), testCase.startAddr, testCase.endAddr, false})
+			ride, err := rideBookingUc.Book(TBook{uuid.MustParse(userUUID), testCase.startAddr, testCase.endAddr, false})
 			assert.Nil(t, err)
 			assert.Equal(t, testCase.expectedBasePrice, ride.GetTotalPrice())
 
@@ -53,20 +56,24 @@ func (suite *RideTestSuite) TestRide() {
 	})
 
 	suite.T().Run("should return an error if the user is not found", func(t *testing.T) {
+		fakeUuidGenerator := providers.NewFakeUuidGenerator(uuid.MustParse(rideUUID))
+
 		fakeTripProvider := providers.NewFakeTripScannerProvider()
 		fakeTripProvider.Distance = 10
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
 		fakeUserRepo.ShouldReturnAnError = true
 
-		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator)
 
-		_, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), TAdressInput{}, TAdressInput{}, false})
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(userUUID), TAdressInput{}, TAdressInput{}, false})
 		assert.NotNil(t, err)
-		assert.EqualError(t, err, fmt.Sprintf("user %s not found", UUID))
+		assert.EqualError(t, err, fmt.Sprintf("user %s not found", userUUID))
 	})
 
 	suite.T().Run("should book a UberX when distance is more than 3 km price", func(t *testing.T) {
+		fakeUuidGenerator := providers.NewFakeUuidGenerator(uuid.MustParse(rideUUID))
+
 		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
 		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 3.0
@@ -76,16 +83,18 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", valueobjects.ForfaitPremium)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium)
 
-		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator)
 
-		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), startAddr, endAddr, true})
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(userUUID), startAddr, endAddr, true})
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
 
 	suite.T().Run("should return an error is distance is less than 3 km for an UberX ride", func(t *testing.T) {
+		fakeUuidGenerator := providers.NewFakeUuidGenerator(uuid.MustParse(rideUUID))
+
 		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
 		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 2.0
@@ -94,11 +103,11 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(UUID), "blop", valueobjects.ForfaitPremium)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium)
 
-		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider)
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator)
 
-		_, err := rideBookingUc.Book(TBook{uuid.MustParse(UUID), startAddr, endAddr, true})
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(userUUID), startAddr, endAddr, true})
 
 		assert.EqualError(t, err, "distance cannot be < 3 when uberX")
 	})
