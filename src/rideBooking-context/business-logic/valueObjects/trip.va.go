@@ -1,6 +1,8 @@
 package valueobjects
 
-import "errors"
+import (
+	"errors"
+)
 
 var PRICE_PER_KILOMETER float32 = 0.5
 
@@ -12,7 +14,7 @@ type Trip struct {
 	totalPrice float32
 }
 
-func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool) (Trip, error) {
+func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool, isBirthday bool) (Trip, error) {
 	if forfait == ForfaitPremium && distance < 3 {
 		return Trip{}, errors.New("distance cannot be < 3 when uberX")
 	}
@@ -21,13 +23,13 @@ func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait
 		endAddr:   endAddr,
 		distance:  distance,
 	}
-	trip.setTotalCost(forfait, isUberX)
+	trip.setTotalCost(forfait, isUberX, isBirthday)
 	return trip, nil
 }
 
-func (fp *Trip) getBasePrice(isUberX bool) float32 {
+func (fp *Trip) getBasePrice(isUberX bool, isBirthday bool) float32 {
 	var basePrice float32 = 0
-	if isUberX {
+	if isUberX && !isBirthday {
 		basePrice = 10
 	}
 	if fp.startAddr.IsInParis() {
@@ -42,8 +44,8 @@ func (fp *Trip) getBasePrice(isUberX bool) float32 {
 	return basePrice + 50
 }
 
-func (fp *Trip) setTotalCost(forfait Forfait, isUberX bool) {
-	basePrice := fp.getBasePrice(isUberX)
+func (fp *Trip) setTotalCost(forfait Forfait, isUberX bool, isBirthday bool) {
+	basePrice := fp.getBasePrice(isUberX, isBirthday)
 	fp.totalPrice = basePrice + fp.getDistancePrice(forfait)
 }
 

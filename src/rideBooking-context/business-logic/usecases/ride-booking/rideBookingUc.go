@@ -27,16 +27,18 @@ type BookOptions struct {
 }
 
 type RideBookingUc struct {
-	tripScanner   gateways.ITripScanner
-	userRepo      gateways.UserRepo
-	uuidGenerator gateways.IUUIDGenerator
+	tripScanner       gateways.ITripScanner
+	userRepo          gateways.UserRepo
+	uuidGenerator     gateways.IUUIDGenerator
+	deterministicTime gateways.IDeterministicTime
 }
 
-func NewRideBookingUc(userRepo gateways.UserRepo, tripProvider gateways.ITripScanner, uuidGenerator gateways.IUUIDGenerator) *RideBookingUc {
+func NewRideBookingUc(userRepo gateways.UserRepo, tripProvider gateways.ITripScanner, uuidGenerator gateways.IUUIDGenerator, deterministicTime gateways.IDeterministicTime) *RideBookingUc {
 	return &RideBookingUc{
-		userRepo:      userRepo,
-		tripScanner:   tripProvider,
-		uuidGenerator: uuidGenerator,
+		userRepo:          userRepo,
+		tripScanner:       tripProvider,
+		uuidGenerator:     uuidGenerator,
+		deterministicTime: deterministicTime,
 	}
 }
 
@@ -45,11 +47,13 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 	if err != nil {
 		return models.Ride{}, err
 	}
+	isBirthday := foundUser.IsBirthday(rbuc.deterministicTime.Now())
+
 	startAddr := valueobjects.NewAddressVA(args.startAddr.number, args.startAddr.street, args.startAddr.code, args.startAddr.city)
 	endAddr := valueobjects.NewAddressVA(args.endAddr.number, args.endAddr.street, args.endAddr.code, args.endAddr.city)
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
-	trip, err := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX)
+	trip, err := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX, isBirthday)
 	if err != nil {
 		return models.Ride{}, err
 	}

@@ -3,15 +3,13 @@ package providers
 import "github.com/google/uuid"
 
 type FakeUuidGenerator struct {
-	expectedUuid uuid.UUID
+	ExpectedUuid uuid.UUID
 }
 
-func NewFakeUuidGenerator(expectedUuid uuid.UUID) *FakeUuidGenerator {
-	return &FakeUuidGenerator{
-		expectedUuid: expectedUuid,
-	}
+func NewFakeUuidGenerator() *FakeUuidGenerator {
+	return &FakeUuidGenerator{}
 }
 
 func (fug *FakeUuidGenerator) Generate() uuid.UUID {
-	return fug.expectedUuid
+	return fug.ExpectedUuid
 }
