@@ -48,6 +48,6 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
 	trip := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX)
-	ride := models.BookNewRide(foundUser, trip)
+	ride := models.BookNewRide(foundUser, trip, args.isUberX)
 	return ride, nil
 }

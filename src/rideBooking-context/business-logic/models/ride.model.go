@@ -5,14 +5,16 @@ import (
 )
 
 type Ride struct {
-	user User
-	trip valueobjects.Trip
+	user    User
+	trip    valueobjects.Trip
+	isUberX bool
 }
 
-func BookNewRide(user User, trip valueobjects.Trip) Ride {
+func BookNewRide(user User, trip valueobjects.Trip, isUberX bool) Ride {
 	return Ride{
-		user: user,
-		trip: trip,
+		user:    user,
+		trip:    trip,
+		isUberX: isUberX,
 	}
 }
 

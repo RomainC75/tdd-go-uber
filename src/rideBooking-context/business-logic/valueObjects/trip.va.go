@@ -8,8 +8,6 @@ type Trip struct {
 	endAddr    Adress
 	distance   float32
 	totalPrice float32
-	forfait    Forfait
-	isUberX    bool
 }
 
 func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait, isUberX bool) Trip {
@@ -17,16 +15,14 @@ func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait
 		startAddr: startAddr,
 		endAddr:   endAddr,
 		distance:  distance,
-		forfait:   forfait,
-		isUberX:   isUberX,
 	}
-	trip.setTotalCost()
+	trip.setTotalCost(forfait, isUberX)
 	return trip
 }
 
-func (fp *Trip) getBasePrice() float32 {
+func (fp *Trip) getBasePrice(isUberX bool) float32 {
 	var basePrice float32 = 0
-	if fp.isUberX {
+	if isUberX {
 		basePrice = 10
 	}
 	if fp.startAddr.IsInParis() {
@@ -41,13 +37,13 @@ func (fp *Trip) getBasePrice() float32 {
 	return basePrice + 50
 }
 
-func (fp *Trip) setTotalCost() {
-	basePrice := fp.getBasePrice()
-	fp.totalPrice = basePrice + fp.getDistancePrice()
+func (fp *Trip) setTotalCost(forfait Forfait, isUberX bool) {
+	basePrice := fp.getBasePrice(isUberX)
+	fp.totalPrice = basePrice + fp.getDistancePrice(forfait)
 }
 
-func (fp *Trip) getDistancePrice() float32 {
-	if fp.forfait == ForfaitPremium {
+func (fp *Trip) getDistancePrice(forfait Forfait) float32 {
+	if forfait == ForfaitPremium {
 		if fp.distance < 5 {
 			return 0
 		}
