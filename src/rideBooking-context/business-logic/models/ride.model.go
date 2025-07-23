@@ -28,3 +28,7 @@ func BookNewRide(id uuid.UUID, rider Rider, trip valueobjects.Trip, isUberX bool
 func (r Ride) GetTotalPrice() float32 {
 	return r.trip.GetTotalPrice()
 }
+
+func (r Ride) GetUuid() uuid.UUID {
+	return r.id
+}

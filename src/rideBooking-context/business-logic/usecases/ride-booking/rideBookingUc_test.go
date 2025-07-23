@@ -144,8 +144,8 @@ func (suite *RideTestSuite) TestRide() {
 
 		fug.ExpectedUuid = uuid.MustParse(rideUUID)
 
-		var distance float32 = 3.0
 		var expectedPrice float32 = 28.5
+		var distance float32 = 3.0
 
 		ftsp.Distance = distance
 
@@ -157,6 +157,20 @@ func (suite *RideTestSuite) TestRide() {
 		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
+	})
+	suite.T().Run("should save the ride in db", func(t *testing.T) {
+		fRideR, fRiderR, ftsp, fug, fdt := dependenciesInstanciator()
+		fdt.ExpectedTime = nowDate
+		ftsp.Distance = 3.0
+		fug.ExpectedUuid = uuid.MustParse(rideUUID)
+		fRiderR.ExpectedRider = *models.NewRider(uuid.MustParse(riderUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday, defaultInscription)
+
+		rideBookingUc := NewRideBookingUc(fRideR, fRiderR, ftsp, fug, fdt)
+
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
+		assert.NoError(t, err)
+		assert.Equal(t, len(fRideR.Rides), 1)
+		assert.Equal(t, fRideR.Rides[0].GetUuid().String(), rideUUID)
 	})
 }
 
