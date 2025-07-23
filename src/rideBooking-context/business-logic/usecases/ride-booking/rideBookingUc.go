@@ -16,7 +16,7 @@ type TAdressInput struct {
 }
 
 type TBook struct {
-	userId    uuid.UUID
+	riderId   uuid.UUID
 	startAddr TAdressInput
 	endAddr   TAdressInput
 	isUberX   bool
@@ -28,19 +28,19 @@ type BookOptions struct {
 
 type RideBookingUc struct {
 	tripScanner       gateways.ITripScanner
-	userRepo          gateways.UserRepo
+	riderRepo         gateways.RiderRepo
 	uuidGenerator     gateways.IUUIDGenerator
 	deterministicTime gateways.IDeterministicTime
 }
 
 func NewRideBookingUc(
-	userRepo gateways.UserRepo,
+	riderRepo gateways.RiderRepo,
 	tripProvider gateways.ITripScanner,
 	uuidGenerator gateways.IUUIDGenerator,
 	deterministicTime gateways.IDeterministicTime,
 ) *RideBookingUc {
 	return &RideBookingUc{
-		userRepo:          userRepo,
+		riderRepo:         riderRepo,
 		tripScanner:       tripProvider,
 		uuidGenerator:     uuidGenerator,
 		deterministicTime: deterministicTime,
@@ -48,21 +48,21 @@ func NewRideBookingUc(
 }
 
 func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
-	foundUser, err := rbuc.userRepo.GetUser(args.userId)
+	foundRider, err := rbuc.riderRepo.GetRider(args.riderId)
 	if err != nil {
 		return models.Ride{}, err
 	}
-	isBirthday := foundUser.IsBirthday(rbuc.deterministicTime.Now())
+	isBirthday := foundRider.IsBirthday(rbuc.deterministicTime.Now())
 
 	startAddr := valueobjects.NewAddressVA(args.startAddr.number, args.startAddr.street, args.startAddr.code, args.startAddr.city)
 	endAddr := valueobjects.NewAddressVA(args.endAddr.number, args.endAddr.street, args.endAddr.code, args.endAddr.city)
 	distance := rbuc.tripScanner.GetTotalDistance(*startAddr, *endAddr)
 
-	trip, err := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundUser.GetForfait(), args.isUberX, isBirthday)
+	trip, err := valueobjects.NewTrip(*startAddr, *endAddr, distance, foundRider.GetForfait(), args.isUberX, isBirthday)
 	if err != nil {
 		return models.Ride{}, err
 	}
 	newUuid := rbuc.uuidGenerator.Generate()
-	ride := models.BookNewRide(newUuid, foundUser, trip, args.isUberX, rbuc.deterministicTime.Now())
+	ride := models.BookNewRide(newUuid, foundRider, trip, args.isUberX, rbuc.deterministicTime.Now())
 	return ride, nil
 }

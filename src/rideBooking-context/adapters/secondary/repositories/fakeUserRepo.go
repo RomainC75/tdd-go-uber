@@ -8,18 +8,18 @@ import (
 	"github.com/google/uuid"
 )
 
-type FakeUserRepo struct {
-	ExpectedUser        models.User
+type FakeRiderRepo struct {
+	ExpectedRider       models.Rider
 	ShouldReturnAnError bool
 }
 
-func NewFakeUserRepo() *FakeUserRepo {
-	return &FakeUserRepo{}
+func NewFakeRiderRepo() *FakeRiderRepo {
+	return &FakeRiderRepo{}
 }
 
-func (fur *FakeUserRepo) GetUser(id uuid.UUID) (models.User, error) {
+func (fur *FakeRiderRepo) GetRider(id uuid.UUID) (models.Rider, error) {
 	if fur.ShouldReturnAnError {
-		return models.User{}, fmt.Errorf("user %s not found", id.String())
+		return models.Rider{}, fmt.Errorf("rider %s not found", id.String())
 	}
-	return fur.ExpectedUser, nil
+	return fur.ExpectedRider, nil
 }

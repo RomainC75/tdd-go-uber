@@ -10,7 +10,7 @@ import (
 
 const ONE_YEAR_IN_SECONDS = 31622400
 
-type User struct {
+type Rider struct {
 	id          uuid.UUID
 	name        string
 	forfait     valueobjects.Forfait
@@ -18,8 +18,8 @@ type User struct {
 	inscription time.Time
 }
 
-func NewUser(id uuid.UUID, name string, forfait valueobjects.Forfait, birthday time.Time, inscription time.Time) *User {
-	return &User{
+func NewRider(id uuid.UUID, name string, forfait valueobjects.Forfait, birthday time.Time, inscription time.Time) *Rider {
+	return &Rider{
 		id:          id,
 		name:        name,
 		forfait:     forfait,
@@ -28,18 +28,18 @@ func NewUser(id uuid.UUID, name string, forfait valueobjects.Forfait, birthday t
 	}
 }
 
-func (u *User) GetForfait() valueobjects.Forfait {
+func (u *Rider) GetForfait() valueobjects.Forfait {
 	return u.forfait
 }
 
-func (u *User) IsBirthday(now time.Time) bool {
+func (u *Rider) IsBirthday(now time.Time) bool {
 	if u.birthday.Day() == now.Day() && u.birthday.Month() == now.Month() {
 		return true
 	}
 	return false
 }
 
-func (u *User) IsNewUser(now time.Time) bool {
+func (u *Rider) IsNewRider(now time.Time) bool {
 	d := now.Sub(u.inscription)
 	return d.Seconds() < ONE_YEAR_IN_SECONDS
 }

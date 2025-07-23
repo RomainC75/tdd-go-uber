@@ -11,17 +11,17 @@ import (
 
 type Ride struct {
 	id      uuid.UUID
-	user    User
+	rider   Rider
 	trip    valueobjects.Trip
 	isUberX bool
 }
 
-func BookNewRide(id uuid.UUID, user User, trip valueobjects.Trip, isUberX bool, now time.Time) Ride {
-	trip.SetTotalCost(user.forfait, isUberX, user.IsBirthday(now), user.IsNewUser(now))
-	fmt.Printf("-----------------IS NEW : %t \n", user.IsNewUser(now))
+func BookNewRide(id uuid.UUID, rider Rider, trip valueobjects.Trip, isUberX bool, now time.Time) Ride {
+	trip.SetTotalCost(rider.forfait, isUberX, rider.IsBirthday(now), rider.IsNewRider(now))
+	fmt.Printf("-----------------IS NEW : %t \n", rider.IsNewRider(now))
 	return Ride{
 		id:      id,
-		user:    user,
+		rider:   rider,
 		trip:    trip,
 		isUberX: isUberX,
 	}

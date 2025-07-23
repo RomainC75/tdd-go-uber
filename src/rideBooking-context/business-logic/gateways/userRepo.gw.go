@@ -6,6 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type UserRepo interface {
-	GetUser(id uuid.UUID) (models.User, error)
+type RiderRepo interface {
+	GetRider(id uuid.UUID) (models.Rider, error)
 }
