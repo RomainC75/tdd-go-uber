@@ -25,6 +25,8 @@ func (suite *RideTestSuite) TestRide() {
 	nowDate, _ := time.Parse(time.RFC3339, "2025-01-01T15:04:05Z")
 	defaultBirhday, _ := time.Parse(time.RFC3339, "1980-01-10T15:04:05Z")
 	defaultInscription, _ := time.Parse(time.RFC3339, "2023-12-10T15:04:05Z")
+	defaultStartAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
+	defaultEndAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 
 	testCases := []struct {
 		startAddr         TAdressInput
@@ -89,8 +91,6 @@ func (suite *RideTestSuite) TestRide() {
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 
-		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
-		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 3.0
 		var expectedPrice float32 = 30
 
@@ -102,7 +102,7 @@ func (suite *RideTestSuite) TestRide() {
 
 		rideBookingUc := NewRideBookingUc(fakeRiderRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
-		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), startAddr, endAddr, true})
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
@@ -113,8 +113,6 @@ func (suite *RideTestSuite) TestRide() {
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 
-		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
-		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 2.0
 
 		fakeTripProvider := providers.NewFakeTripScannerProvider()
@@ -125,7 +123,7 @@ func (suite *RideTestSuite) TestRide() {
 
 		rideBookingUc := NewRideBookingUc(fakeRiderRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
-		_, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), startAddr, endAddr, true})
+		_, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
 
 		assert.EqualError(t, err, "distance cannot be < 3 when uberX")
 	})
@@ -138,8 +136,6 @@ func (suite *RideTestSuite) TestRide() {
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 		fakeUuidGenerator.ExpectedUuid = uuid.MustParse(rideUUID)
 
-		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
-		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 3.0
 		var expectedPrice float32 = 20
 
@@ -151,7 +147,7 @@ func (suite *RideTestSuite) TestRide() {
 
 		rideBookingUc := NewRideBookingUc(fakeRiderRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
-		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), startAddr, endAddr, true})
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
@@ -163,8 +159,6 @@ func (suite *RideTestSuite) TestRide() {
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 		fakeUuidGenerator.ExpectedUuid = uuid.MustParse(rideUUID)
 
-		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
-		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
 		var distance float32 = 3.0
 		var expectedPrice float32 = 28.5
 		fakeTripProvider := providers.NewFakeTripScannerProvider()
@@ -176,7 +170,7 @@ func (suite *RideTestSuite) TestRide() {
 
 		rideBookingUc := NewRideBookingUc(fakeRiderRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
-		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), startAddr, endAddr, true})
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(riderUUID), defaultStartAddr, defaultEndAddr, true})
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
 	})
