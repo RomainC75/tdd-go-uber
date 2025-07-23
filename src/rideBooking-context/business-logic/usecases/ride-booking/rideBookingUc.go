@@ -33,7 +33,12 @@ type RideBookingUc struct {
 	deterministicTime gateways.IDeterministicTime
 }
 
-func NewRideBookingUc(userRepo gateways.UserRepo, tripProvider gateways.ITripScanner, uuidGenerator gateways.IUUIDGenerator, deterministicTime gateways.IDeterministicTime) *RideBookingUc {
+func NewRideBookingUc(
+	userRepo gateways.UserRepo,
+	tripProvider gateways.ITripScanner,
+	uuidGenerator gateways.IUUIDGenerator,
+	deterministicTime gateways.IDeterministicTime,
+) *RideBookingUc {
 	return &RideBookingUc{
 		userRepo:          userRepo,
 		tripScanner:       tripProvider,
@@ -58,6 +63,6 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 		return models.Ride{}, err
 	}
 	newUuid := rbuc.uuidGenerator.Generate()
-	ride := models.BookNewRide(newUuid, foundUser, trip, args.isUberX)
+	ride := models.BookNewRide(newUuid, foundUser, trip, args.isUberX, rbuc.deterministicTime.Now())
 	return ride, nil
 }

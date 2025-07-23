@@ -23,7 +23,7 @@ func NewTrip(startAddr Adress, endAddr Adress, distance float32, forfait Forfait
 		endAddr:   endAddr,
 		distance:  distance,
 	}
-	trip.setTotalCost(forfait, isUberX, isBirthday)
+
 	return trip, nil
 }
 
@@ -44,9 +44,12 @@ func (fp *Trip) getBasePrice(isUberX bool, isBirthday bool) float32 {
 	return basePrice + 50
 }
 
-func (fp *Trip) setTotalCost(forfait Forfait, isUberX bool, isBirthday bool) {
+func (fp *Trip) SetTotalCost(forfait Forfait, isUberX bool, isBirthday bool, isANewUser bool) {
 	basePrice := fp.getBasePrice(isUberX, isBirthday)
 	fp.totalPrice = basePrice + fp.getDistancePrice(forfait)
+	if isANewUser {
+		fp.totalPrice = fp.totalPrice * 0.95
+	}
 }
 
 func (fp *Trip) getDistancePrice(forfait Forfait) float32 {

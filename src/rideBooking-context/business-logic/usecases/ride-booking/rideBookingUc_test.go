@@ -23,7 +23,8 @@ func (suite *RideTestSuite) TestRide() {
 	userUUID := "0510c938-138b-4860-b5a7-c1bcb71719df"
 	rideUUID := "d57f6854-c4ea-45d6-bbee-5d395002a279"
 	nowDate, _ := time.Parse(time.RFC3339, "2025-01-01T15:04:05Z")
-	defaultBirhday, _ := time.Parse(time.RFC3339, "2025-01-10T15:04:05Z")
+	defaultBirhday, _ := time.Parse(time.RFC3339, "1980-01-10T15:04:05Z")
+	defaultInscription, _ := time.Parse(time.RFC3339, "2023-12-10T15:04:05Z")
 
 	testCases := []struct {
 		startAddr         TAdressInput
@@ -43,6 +44,7 @@ func (suite *RideTestSuite) TestRide() {
 	suite.T().Run("should calculate price", func(t *testing.T) {
 		for _, testCase := range testCases {
 			fakeDeterministicTime := providers.NewDeterministicTime()
+			fakeDeterministicTime.ExpectedTime = nowDate
 
 			fakeUuidGenerator := providers.NewFakeUuidGenerator()
 			fakeUuidGenerator.ExpectedUuid = uuid.MustParse(rideUUID)
@@ -51,7 +53,7 @@ func (suite *RideTestSuite) TestRide() {
 			fakeTripProvider.Distance = testCase.distance
 
 			fakeUserRepo := repositories.NewFakeUserRepo()
-			fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", testCase.Forfait, defaultBirhday)
+			fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", testCase.Forfait, defaultBirhday, defaultInscription)
 
 			rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
@@ -64,6 +66,7 @@ func (suite *RideTestSuite) TestRide() {
 
 	suite.T().Run("should return an error if the user is not found", func(t *testing.T) {
 		fakeDeterministicTime := providers.NewDeterministicTime()
+		fakeDeterministicTime.ExpectedTime = nowDate
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 
@@ -82,6 +85,7 @@ func (suite *RideTestSuite) TestRide() {
 
 	suite.T().Run("should book a UberX when distance is more than 3 km price", func(t *testing.T) {
 		fakeDeterministicTime := providers.NewDeterministicTime()
+		fakeDeterministicTime.ExpectedTime = nowDate
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 
@@ -94,7 +98,7 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday, defaultInscription)
 
 		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
@@ -105,6 +109,7 @@ func (suite *RideTestSuite) TestRide() {
 
 	suite.T().Run("should return an error is distance is less than 3 km for an UberX ride", func(t *testing.T) {
 		fakeDeterministicTime := providers.NewDeterministicTime()
+		fakeDeterministicTime.ExpectedTime = nowDate
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 
@@ -116,7 +121,7 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday, defaultInscription)
 
 		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 
@@ -127,8 +132,8 @@ func (suite *RideTestSuite) TestRide() {
 
 	suite.T().Run("uberX free if today is the birthday of the user", func(t *testing.T) {
 		fakeDeterministicTime := providers.NewDeterministicTime()
-		customBirthday, _ := time.Parse(time.RFC3339, "1980-01-01T15:04:05Z")
 		fakeDeterministicTime.ExpectedTime = nowDate
+		customBirthday, _ := time.Parse(time.RFC3339, "1980-01-01T15:04:05Z")
 
 		fakeUuidGenerator := providers.NewFakeUuidGenerator()
 		fakeUuidGenerator.ExpectedUuid = uuid.MustParse(rideUUID)
@@ -142,7 +147,32 @@ func (suite *RideTestSuite) TestRide() {
 		fakeTripProvider.Distance = distance
 
 		fakeUserRepo := repositories.NewFakeUserRepo()
-		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, customBirthday)
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, customBirthday, defaultInscription)
+
+		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
+
+		ride, err := rideBookingUc.Book(TBook{uuid.MustParse(userUUID), startAddr, endAddr, true})
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPrice, ride.GetTotalPrice())
+	})
+
+	suite.T().Run("should get 5% because of a new user (<1year)", func(t *testing.T) {
+		fakeDeterministicTime := providers.NewDeterministicTime()
+		fakeDeterministicTime.ExpectedTime = nowDate
+
+		fakeUuidGenerator := providers.NewFakeUuidGenerator()
+		fakeUuidGenerator.ExpectedUuid = uuid.MustParse(rideUUID)
+
+		startAddr := TAdressInput{11, "boulevard poissonière", 75002, "paris"}
+		endAddr := TAdressInput{7, "chemin du trou de l'hotel", 91300, "Massy"}
+		var distance float32 = 3.0
+		var expectedPrice float32 = 28.5
+		fakeTripProvider := providers.NewFakeTripScannerProvider()
+		fakeTripProvider.Distance = distance
+
+		fakeUserRepo := repositories.NewFakeUserRepo()
+		inscriptionDate, _ := time.Parse(time.RFC3339, "2024-01-10T15:04:05Z")
+		fakeUserRepo.ExpectedUser = *models.NewUser(uuid.MustParse(userUUID), "blop", valueobjects.ForfaitPremium, defaultBirhday, inscriptionDate)
 
 		rideBookingUc := NewRideBookingUc(fakeUserRepo, fakeTripProvider, fakeUuidGenerator, fakeDeterministicTime)
 

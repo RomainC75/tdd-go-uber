@@ -8,19 +8,23 @@ import (
 	"github.com/google/uuid"
 )
 
+const ONE_YEAR_IN_SECONDS = 31622400
+
 type User struct {
-	id       uuid.UUID
-	name     string
-	forfait  valueobjects.Forfait
-	birthday time.Time
+	id          uuid.UUID
+	name        string
+	forfait     valueobjects.Forfait
+	birthday    time.Time
+	inscription time.Time
 }
 
-func NewUser(id uuid.UUID, name string, forfait valueobjects.Forfait, birthday time.Time) *User {
+func NewUser(id uuid.UUID, name string, forfait valueobjects.Forfait, birthday time.Time, inscription time.Time) *User {
 	return &User{
-		id:       id,
-		name:     name,
-		forfait:  forfait,
-		birthday: birthday,
+		id:          id,
+		name:        name,
+		forfait:     forfait,
+		birthday:    birthday,
+		inscription: inscription,
 	}
 }
 
@@ -33,4 +37,9 @@ func (u *User) IsBirthday(now time.Time) bool {
 		return true
 	}
 	return false
+}
+
+func (u *User) IsNewUser(now time.Time) bool {
+	d := now.Sub(u.inscription)
+	return d.Seconds() < ONE_YEAR_IN_SECONDS
 }

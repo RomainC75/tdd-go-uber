@@ -40,7 +40,7 @@ La réservation est confirmée une fois qu'un Driver libre est assigné par le s
   le supplément de 10€ pour l'option UberX est **offert** pour les trajets de 3 kilomètres ou plus.
 
 ### **5. Offre de Bienvenue**
-- Une remise de **X €** est offerte aux Riders durant leur première année d'utilisation du service.
+- Une remise de **5 %** est offerte aux Riders durant leur première année d'utilisation du service.
 
 ### **6. Restriction sur les Réservations**
 - Un Rider **ne peut réserver qu'une seule course à la fois**.

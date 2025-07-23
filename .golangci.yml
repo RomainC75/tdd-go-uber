@@ -1,0 +1,12 @@
+linters:
+  enable:
+    - lll
+
+linters-settings:
+  lll:
+    line-length: 100  # or your preferred max length
+    tab-width: 1
+    ignore-comments: true
+    ignore-strings: true
+    exclude-patterns:
+      - "^// Code generated .* DO NOT EDIT\\.$"
