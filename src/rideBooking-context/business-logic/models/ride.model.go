@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	valueobjects "tdd-go-uber/src/rideBooking-context/business-logic/valueObjects"
@@ -18,7 +17,6 @@ type Ride struct {
 
 func BookNewRide(id uuid.UUID, rider Rider, trip valueobjects.Trip, isUberX bool, now time.Time) Ride {
 	trip.SetTotalCost(rider.forfait, isUberX, rider.IsBirthday(now), rider.IsNewRider(now))
-	fmt.Printf("-----------------IS NEW : %t \n", rider.IsNewRider(now))
 	return Ride{
 		id:      id,
 		rider:   rider,

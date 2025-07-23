@@ -27,6 +27,7 @@ type BookOptions struct {
 }
 
 type RideBookingUc struct {
+	rideRpo           gateways.IRideRepo
 	tripScanner       gateways.ITripScanner
 	riderRepo         gateways.RiderRepo
 	uuidGenerator     gateways.IUUIDGenerator
@@ -34,12 +35,14 @@ type RideBookingUc struct {
 }
 
 func NewRideBookingUc(
+	rideRepo gateways.IRideRepo,
 	riderRepo gateways.RiderRepo,
 	tripProvider gateways.ITripScanner,
 	uuidGenerator gateways.IUUIDGenerator,
 	deterministicTime gateways.IDeterministicTime,
 ) *RideBookingUc {
 	return &RideBookingUc{
+		rideRpo:           rideRepo,
 		riderRepo:         riderRepo,
 		tripScanner:       tripProvider,
 		uuidGenerator:     uuidGenerator,
@@ -62,7 +65,12 @@ func (rbuc *RideBookingUc) Book(args TBook) (models.Ride, error) {
 	if err != nil {
 		return models.Ride{}, err
 	}
+
 	newUuid := rbuc.uuidGenerator.Generate()
 	ride := models.BookNewRide(newUuid, foundRider, trip, args.isUberX, rbuc.deterministicTime.Now())
+	err = rbuc.rideRpo.Save(ride)
+	if err != nil {
+		return models.Ride{}, err
+	}
 	return ride, nil
 }
