@@ -23,6 +23,7 @@ func NewRideCancel(rideRepo gateways.IRideRepo) *RideCancelUC {
 func (crr *RideCancelUC) Execute(riderId uuid.UUID, rideId uuid.UUID) error {
 	foundRide, err := crr.rideRepo.GetById(rideId)
 	if err != nil {
+		return err
 	}
 	if !foundRide.IdUserTheOwner(riderId) {
 		return ErrorUserNotAuthorizedToDeleteRide

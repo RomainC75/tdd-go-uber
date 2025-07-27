@@ -24,7 +24,16 @@ func TestCancelRide(t *testing.T) {
 
 		rideCancel := NewRideCancel(fakeRideRepo)
 		rideCancel.Execute(riderUUID, rideUUID)
-
 		assert.Equal(t, len(fakeRideRepo.Rides), 0)
+	})
+
+	t.Run("should raise an error if the ride is not found", func(t *testing.T) {
+		fakeRideRepo := repositories.NewFakeRideRepo()
+		fakeRideRepo.IsRideNotExpectedToBeFound = true
+
+		rideCancel := NewRideCancel(fakeRideRepo)
+		err := rideCancel.Execute(riderUUID, rideUUID)
+
+		assert.EqualError(t, err, repositories.ErrorRideNotFound.Error())
 	})
 }

@@ -1,13 +1,18 @@
 package repositories
 
 import (
+	"errors"
+
 	"tdd-go-uber/src/rideBooking-context/business-logic/models"
 
 	"github.com/google/uuid"
 )
 
+var ErrorRideNotFound = errors.New("ride not found")
+
 type FakeRideRepo struct {
-	Rides []models.Ride
+	Rides                      []models.Ride
+	IsRideNotExpectedToBeFound bool
 }
 
 func NewFakeRideRepo() *FakeRideRepo {
@@ -20,6 +25,9 @@ func (frr *FakeRideRepo) Save(ride models.Ride) error {
 }
 
 func (frr *FakeRideRepo) GetById(rideId uuid.UUID) (models.Ride, error) {
+	if frr.IsRideNotExpectedToBeFound {
+		return models.Ride{}, ErrorRideNotFound
+	}
 	return frr.Rides[0], nil
 }
 
