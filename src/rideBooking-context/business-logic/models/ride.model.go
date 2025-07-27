@@ -37,8 +37,8 @@ func (r Ride) GetTotalPrice() float32 {
 	return r.trip.GetTotalPrice()
 }
 
-func (r Ride) IdUserTheOwner(userId uuid.UUID) bool {
-	return r.rider.GetUuid() == userId
+func (r Ride) IdUserTheOwner(riderId uuid.UUID) bool {
+	return r.rider.GetUuid() == riderId
 }
 
 func (r Ride) GetUuid() uuid.UUID {
