@@ -8,6 +8,14 @@ import (
 	"github.com/google/uuid"
 )
 
+type RideStatus int
+
+const (
+	Running RideStatus = iota
+	Done
+	Canceled
+)
+
 type Ride struct {
 	id      uuid.UUID
 	rider   Rider
@@ -27,6 +35,10 @@ func BookNewRide(id uuid.UUID, rider Rider, trip valueobjects.Trip, isUberX bool
 
 func (r Ride) GetTotalPrice() float32 {
 	return r.trip.GetTotalPrice()
+}
+
+func (r Ride) IdUserTheOwner(userId uuid.UUID) bool {
+	return r.rider.GetUuid() == userId
 }
 
 func (r Ride) GetUuid() uuid.UUID {

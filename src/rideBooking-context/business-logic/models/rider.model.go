@@ -43,3 +43,7 @@ func (u *Rider) IsNewRider(now time.Time) bool {
 	d := now.Sub(u.inscription)
 	return d.Seconds() < ONE_YEAR_IN_SECONDS
 }
+
+func (u *Rider) GetUuid() uuid.UUID {
+	return u.id
+}
